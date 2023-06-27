@@ -152,7 +152,7 @@
              <number>9</number>
             </property>
             <item alignment="Qt::AlignBottom">
-             <widget class="QTextEdit" name="textEdit_2">
+             <widget class="QTextEdit" name="consoleTextEdit">
               <property name="palette">
                <palette>
                 <active>
