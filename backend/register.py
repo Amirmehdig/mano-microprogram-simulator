@@ -39,6 +39,11 @@ class Register:
         self.set_value(int(other))
         return self
 
+    def __iand__(self, other):
+        for i in range(self.size):
+            self.data[i] = self.data[i] & other.data[i]
+        return self
+
     def increment(self):
         self %= int(self) + 1
 
@@ -69,3 +74,9 @@ class Register:
             else:
                 self.bits = list(
                     map(int, list(bin(value)[2:].zfill(self.size))))[-self.size:]
+
+    def hex(self):
+        result = 0
+        for bit in self.bits:
+            result = (result << 1) | bit
+        return hex(result)
