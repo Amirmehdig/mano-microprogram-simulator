@@ -1,7 +1,7 @@
 from register import Register
 
 class Memory:
-    def __init__(self, word_size, capacity):
+    def __init__(self, word_size: int, capacity: int):
         self.ram = []
         for i in range(capacity):
             reg = Register(word_size)
