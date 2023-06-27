@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>799</width>
+    <width>1494</width>
     <height>623</height>
    </rect>
   </property>
@@ -33,18 +33,8 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>-1</number>
       </property>
-      <widget class="QWidget" name="programTab">
-       <attribute name="title">
-        <string>Program</string>
-       </attribute>
-      </widget>
-      <widget class="QWidget" name="microprogramTab">
-       <attribute name="title">
-        <string>Micro Program</string>
-       </attribute>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -54,7 +44,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>799</width>
+     <width>1494</width>
      <height>26</height>
     </rect>
    </property>
