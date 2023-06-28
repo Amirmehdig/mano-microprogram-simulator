@@ -25,8 +25,7 @@ class Register:
             result = (result << 1) | bit
         return result
 
-
-    def __add__(self, other):
+    def add(self, other, carry=0):
         def full_adder(a, b, c):
             carry_out = 0
             sum_res = a ^ b ^ c
@@ -34,7 +33,6 @@ class Register:
                 carry_out = 1
             return sum_res, carry_out
 
-        carry = 0
         result = Register(self.size)
         for i in range(self.size - 1, -1, -1):
             result[i], carry = full_adder(self.bits[i], other.bits[i], carry)
