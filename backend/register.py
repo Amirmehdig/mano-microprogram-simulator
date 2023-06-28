@@ -105,10 +105,10 @@ class Register:
 
     def write_to_smaller_reg(self, bigger):
         self.is_valid = True
-        for i in range(bigger.size - 1, 3, -1):
-            self.bits[i - 4] = bigger[i]
+        for i in range(bigger.size - self.size, bigger.size):
+            self.bits[i - (bigger.size - self.size)] = bigger[i]
 
     def write_to_bigger_reg(self, smaller):
         self.is_valid = True
-        for i in range(self.size - 1, 3, -1):
-            self.bits[i] = smaller[i - 4]
+        for i in range(smaller.size):
+            self.bits[i + (self.size - smaller.size)] = smaller[i]

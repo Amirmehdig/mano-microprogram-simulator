@@ -34,6 +34,6 @@ class Branch:
         self.cpu.CAR.write(self.cpu.SBR)
 
     def map_func(self, flag):
-        tmp = [0, 0, 0, 0, 0, 0]
-        tmp[1: 4] = self.cpu.DR.bits[1: 4]
+        tmp = [0, 0, 0, 0, 0, 0, 0]
+        tmp[1:5] = self.cpu.DR.bits[1:5]
         self.cpu.CAR.word_to_register(tmp)

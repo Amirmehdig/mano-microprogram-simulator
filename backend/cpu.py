@@ -51,13 +51,20 @@ class CPU:
             self.program_ram[key].word_to_register(value)
 
     def clock_pulse(self):
+        if "".join([str(x) for x in self.program_ram[int(self.PC) - 1][1:5]]) == "0100":
+            return False
+
+        a, b = self.micro_assembler.disassemble(int(self.CAR), self.micro_program_ram[int(self.CAR)])
+        print(int(self.CAR), a if a else "", b)
+
         word = list(map(str, self.micro_program_ram[int(self.CAR)].bits))
+        self.F1.instruction("".join(word[0:3]))
+        self.F2.instruction("".join(word[3:6]))
+        self.F3.instruction("".join(word[6:9]))
 
-        self.F1.instruction(word[0:3])
-        self.F2.instruction(word[3:6])
-        self.F3.instruction(word[6:9])
-
-        if self.CD.instruction(word[9: 11]):
-            self.BR.instruction(word[11: 13], True)
+        if self.CD.instruction("".join(word[9: 11])):
+            self.BR.instruction("".join(word[11: 13]), True)
         else:
-            self.BR.instruction(word[11: 13], False)
+            self.BR.instruction("".join(word[11: 13]), False)
+
+        return True

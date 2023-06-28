@@ -19,7 +19,7 @@ class F1:
         pass
 
     def add_func(self):
-        self.cpu.AC.write(self.cpu.AC + self.cpu.DR)
+        self.cpu.AC.write((self.cpu.AC + self.cpu.DR)[0])
 
     def clrac_func(self):
         self.cpu.AC.master_reset()

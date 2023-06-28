@@ -72,10 +72,13 @@ class ProgramAssembler:
                 opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
                 I = [1] if match[6] is not None else [0]
 
-                res_dict[LC] = address + opcode + I
+                res_dict[LC] = I + opcode + address
             else:
+                if match[3] == "HLT":
+                    self.hlt_pos = LC
+
                 opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
-                res_dict[LC] = [0] * 11 + opcode + [0]
+                res_dict[LC] = [0] + opcode + [0] * 11
 
             LC += 1
 
@@ -87,18 +90,18 @@ class ProgramAssembler:
         label = find_by_value(self.label_dict, i)
 
         if not after_hlt:
-            address = find_by_value(self.label_dict, int("".join(word[0:11]), 2))
+            address = find_by_value(self.label_dict, int("".join(word[5:16]), 2))
             if address is None:
-                address = hex(int("".join(word[0:11]), 2))[2:].zfill(2)
+                address = hex(int("".join(word[5:16]), 2))[2:].zfill(2)
 
-            opcode = find_by_value(self.micro_table, int("".join(word[11:15]) + "00", 2))
+            opcode = find_by_value(self.micro_table, int("".join(word[1:5]) + "00", 2))
 
             if opcode == "HLT":
                 instruction = f"{opcode}"
             else:
                 instruction = f"{opcode} {address}"
 
-            if word[15] == "1":
+            if word[0] == "1":
                 instruction += " I"
         else:
             instruction = f"HEX {hex(int(''.join(word), 2))[2:].zfill(4)}"
@@ -108,15 +111,12 @@ class ProgramAssembler:
 
 if __name__ == "__main__":
     code = """ORG 0
-ADD 22 I
 ADD A2 
-ADD A3 I
-STORE 10
-STORE 18
+STORE A3
 HLT
 ORG 10
 A2, DEC 15
-A3, HEX 0
+A3, HEX 5
 END"""
     micro_table = {'ADD': 0, 'BRANCH': 4, 'OVER': 6, 'STORE': 8, 'EXCHANGE': 12, 'HLT': 16, 'FETCH': 64, 'INDRCT': 67}
 

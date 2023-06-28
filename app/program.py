@@ -1,9 +1,33 @@
-from PyQt6.QtCore import Qt
+import traceback
+from time import sleep
+
+from PyQt6.QtCore import Qt, QObject, pyqtSignal, QThread
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget, QTableWidgetItem
 
 from backend.cpu import CPU
 from ui.program_tab import Ui_ProgramTab
+
+
+class Worker(QObject):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+
+    def __init__(self, cpu):
+        super().__init__()
+
+        self.cpu = cpu
+
+    def run(self):
+        i = 0
+        while True:
+            if not self.cpu.clock_pulse():
+                break
+
+            sleep(1)
+            self.progress.emit(i + 1)
+            i += 1
+        self.finished.emit()
 
 
 class ProgramWidget(QWidget):
@@ -17,9 +41,6 @@ class ProgramWidget(QWidget):
         self.refresh()
 
         self.table_detail()
-
-        # Run button status (True: run, False: stop)
-        self.is_run = True
 
         self.ui.compilePushButton.clicked.connect(self.compile)
         self.ui.runPushButton.clicked.connect(self.run)
@@ -154,12 +175,27 @@ class ProgramWidget(QWidget):
         self.ui.consoleTextEdit.append("> Compile is successful!")
 
     def run(self):
-        # Change run button status and text
-        self.ui.runPushButton.setText("Run" if self.is_run else "Stop")
-        self.is_run = not self.is_run
+        self.thread = QThread()
+        self.worker = Worker(self.cpu)
 
-        # Run code
-        # while ...
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.progress.connect(self.update_registers)
+
+        self.cpu.PC.set_value(0)
+
+        self.thread.start()
+
+        self.ui.runPushButton.setEnabled(False)
+        self.thread.finished.connect(
+            lambda: self.ui.runPushButton.setEnabled(True)
+        )
+        self.thread.finished.connect(
+            lambda: print("finish!")
+        )
 
     def next(self):
         pass
@@ -167,19 +203,32 @@ class ProgramWidget(QWidget):
     def reset(self):
         pass
 
-    def update_registers(self):
-        self.ui.ARLineEdit.setText()
-        self.ui.DRLineEdit.setText()
-        self.ui.PCLineEdit.setText()
-        self.ui.ACLineEdit.setText()
-        self.ui.CARLineEdit.setText()
-        self.ui.SBRLineEdit.setText()
-        self.ui.F1LineEdit.setText()
-        self.ui.F2LineEdit.setText()
-        self.ui.F3LineEdit.setText()
-        self.ui.CDLineEdit.setText()
-        self.ui.BRLineEdit.setText()
-        self.ui.ADLineEdit.setText()
-        self.ui.ILineEdit.setText()
-        self.ui.OPCodeLineEdit.setText()
-        self.ui.ADDRLineEdit.setText()
+    def update_registers(self, n):
+        pass
+        # try:
+        #     print(int(self.cpu.AR))
+        # except Exception as e:
+        #     print("e2:", e)
+
+        # print(str(int(self.cpu.AR)))
+        self.ui.ARLineEdit.setText(str(int(self.cpu.AR)))
+        self.ui.DRLineEdit.setText(str(int(self.cpu.DR)))
+        self.ui.PCLineEdit.setText(str(int(self.cpu.PC)))
+        self.ui.ACLineEdit.setText(str(int(self.cpu.AC)))
+        self.ui.CARLineEdit.setText(str(int(self.cpu.CAR)))
+        self.ui.SBRLineEdit.setText(str(int(self.cpu.SBR)))
+
+        micro_word = list(map(str, self.cpu.micro_program_ram[int(self.cpu.CAR)].bits))
+        self.ui.F1LineEdit.setText("".join(micro_word[0:3]))
+        self.ui.F2LineEdit.setText("".join(micro_word[3:6]))
+        self.ui.F3LineEdit.setText("".join(micro_word[6:9]))
+        self.ui.CDLineEdit.setText("".join(micro_word[9:11]))
+        self.ui.BRLineEdit.setText("".join(micro_word[11:13]))
+        self.ui.ADLineEdit.setText("".join(micro_word[13:]))
+
+        # self.ui.ADDRLineEdit.setText(str(int(self.cpu.)))
+        # self.ui.OPCodeLineEdit.setText(str(int(self.cpu.)))
+        # self.ui.ILineEdit.setText(str(int(self.cpu.)))
+
+        self.initialize_main_memory()
+        self.initialize_micro_memory()
