@@ -116,14 +116,19 @@ class MicroprogramAssembler:
         br = find_by_value(self.branch, "".join(word[11:13]))
         ad = find_by_value(self.label_dict, int("".join(word[13:]), 2))
 
-        instruction = ""
+        f = []
+        if f1 and f1 != "NOP":
+            f.append(f1)
+        if f2 and f2 != "NOP":
+            f.append(f2)
+        if f3 and f3 != "NOP":
+            f.append(f3)
 
-        if f1:
-            instruction += f1
-        if f2:
-            instruction += f", {f2}"
-        if f3:
-            instruction += f", {f3}"
+        if f == []:
+            instruction = "NOP"
+        else:
+            instruction = ", ".join(f)
+
         if cd:
             instruction += f" {cd}"
         if br:
