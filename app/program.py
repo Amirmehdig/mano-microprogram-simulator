@@ -150,13 +150,18 @@ class ProgramWidget(QWidget):
         code = self.ui.codeTextEdit.toPlainText()
 
         # Compile code
-        self.cpu.program_assemble(code)
-        self.initialize_main_memory()
+        assemble = self.cpu.program_assemble(code)
 
-        self.cpu.PC.set_value(self.cpu.program_assembler.first_org)
+        if assemble is None:
+            self.initialize_main_memory()
 
-        # Successful message for compile
-        self.ui.consoleTextEdit.append("> Compile is successful!")
+            self.cpu.PC.set_value(self.cpu.program_assembler.first_org)
+
+            # Successful message for compile
+            self.ui.consoleTextEdit.append("> Compile is successful!")
+        else:
+            for line, error in assemble.items():
+                self.ui.consoleTextEdit.append(f"> Error at line {line + 1}: {error}")
 
     def run(self):
         self.thread = QThread()

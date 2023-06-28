@@ -53,8 +53,11 @@ class CPU:
         self.program_assembler = ProgramAssembler(program_code, self.micro_assembler.label_dict)
         self.program_assembler.assemble()
 
-        for key, value in self.program_assembler.res_dict.items():
-            self.program_ram[key].word_to_register(value)
+        if self.program_assembler.errors == {}:
+            for key, value in self.program_assembler.res_dict.items():
+                self.program_ram[key].word_to_register(value)
+        else:
+            return self.program_assembler.errors
 
     def clock_pulse(self):
         if "".join([str(x) for x in self.program_ram[int(self.PC) - 1][1:5]]) == "0100":

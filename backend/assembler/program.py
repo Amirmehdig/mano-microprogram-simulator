@@ -26,6 +26,7 @@ class ProgramAssembler:
         self.code_lines = [line.upper() for line in code.split("\n")]
         self.micro_table = micro_table
         self.first_org = None
+        self.errors = {}
 
     def assemble(self):
         self.label_dict = self.first_pass()
@@ -38,16 +39,19 @@ class ProgramAssembler:
         for line in self.code_lines:
             line = line.strip()
 
-            match = self.pattern.match(line).groups()
-            if match[0] is not None:
-                label_dict[match[1]] = LC
-            elif match[3] == "ORG":
-                if self.first_org is None:
-                    self.first_org = LC
+            match = self.pattern.match(line)
+            if match:
+                match = match.groups()
 
-                LC = int(match[5], 16) - 1
-            elif match[2] == "END":
-                break
+                if match[0] is not None:
+                    label_dict[match[1]] = LC
+                elif match[3] == "ORG":
+                    if self.first_org is None:
+                        self.first_org = LC
+
+                    LC = int(match[5], 16) - 1
+                elif match[2] == "END":
+                    break
             LC += 1
 
         return label_dict
@@ -59,30 +63,41 @@ class ProgramAssembler:
         for line in self.code_lines:
             line = line.strip()
 
-            match = self.pattern.match(line).groups()
-            if match[3] == "ORG":
-                LC = int(match[5], 16) - 1
-            elif match[3] == "END":
-                break
-            elif match[3] == "DEC":
-                res_dict[LC] = to_bin(int(match[5]), 16)
-            elif match[3] == "HEX":
-                res_dict[LC] = to_bin(int(match[5], 16), 16)
-            elif match[4] is not None:  # MRI
-                if match[5].isnumeric():
-                    address = to_bin(int(match[5], 16), 11)
+            match = self.pattern.match(line)
+
+            if match:
+                match = match.groups()
+
+                if match[3] == "ORG":
+                    LC = int(match[5], 16) - 1
+                elif match[3] == "END":
+                    break
+                elif match[3] == "DEC":
+                    res_dict[LC] = to_bin(int(match[5]), 16)
+                elif match[3] == "HEX":
+                    res_dict[LC] = to_bin(int(match[5], 16), 16)
+                elif match[4] is not None:  # MRI
+                    if match[5].isnumeric():
+                        address = to_bin(int(match[5], 16), 11)
+                    else:
+                        address = to_bin(self.label_dict[match[5]], 11)
+                    try:
+                        opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
+                    except KeyError as e:
+                        self.errors[LC] = f"{e} not found"
+                        continue
+                    I = [1] if match[6] is not None else [0]
+
+                    res_dict[LC] = I + opcode + address
                 else:
-                    address = to_bin(self.label_dict[match[5]], 11)
-                opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
-                I = [1] if match[6] is not None else [0]
-
-                res_dict[LC] = I + opcode + address
-            else:
-                if match[3] == "HLT":
-                    self.hlt_pos = LC
-
-                opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
-                res_dict[LC] = [0] + opcode + [0] * 11
+                    if match[3] == "HLT":
+                        self.hlt_pos = LC
+                    try:
+                        opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
+                    except KeyError as e:
+                        self.errors[LC] = f"{e} not found"
+                        continue
+                    res_dict[LC] = [0] + opcode + [0] * 11
 
             LC += 1
 
