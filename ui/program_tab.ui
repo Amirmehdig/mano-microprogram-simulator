@@ -24,7 +24,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item alignment="Qt::AlignLeft">
-       <widget class="QTextEdit" name="CodeTextEdit">
+       <widget class="QTextEdit" name="codeTextEdit">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -405,6 +405,13 @@
                <enum>QFrame::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <widget class="QPushButton" name="compilePushButton">
+                 <property name="text">
+                  <string>Compile</string>
+                 </property>
+                </widget>
+               </item>
                <item>
                 <widget class="QPushButton" name="runPushButton">
                  <property name="text">
