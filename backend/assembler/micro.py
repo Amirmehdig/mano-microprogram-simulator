@@ -1,30 +1,6 @@
-# code = '''ORG 0
-#     ADD: NOP I CALL INDRCT
-#         READ U JMP NEXT
-#         ADD U JMP FETCH
-#     ORG 4
-#     BRANCH: NOP S JMP OVER
-#             NOP U JMP FETCH
-#     OVER:   NOP I CALL INDRCT
-#             ARTPC U JMP FETCH
-#     ORG 8
-#     STORE: NOP I CALL INDRCT
-#            ACTOR U JMP NEXT
-#            WRITE U JMP FETCH
-#     ORG 12
-#     EXCHANGE:   NOP              I CALL INDRCT
-#                 READ             U JMP NEXT
-#                 ACTOR, DRTAC     U JMP NEXT
-#                 WRITE            U JMP FETCH
-#     ORG 64
-#     FETCH: PCTAR U JMP NEXT
-#            READ, INCPC U JMP NEXT
-#            DRTAR U JMP MAP
-#     INDRCT: READ U JMP NEXT
-#             DRTAR U RET'''
 
 
-class AssemblerMicroProgram:
+class MicroprogramAssembler:
     def __init__(self, code: str):
         self.lines = code.split('\n')
         for i in range(len(self.lines)):
@@ -82,6 +58,7 @@ class AssemblerMicroProgram:
             if self.lines[i][0][-1] == ':':
                 res_dict.__setitem__(self.lines[i][0].replace(':', ''), current_address)
             current_address += 1
+        print(res_dict)
         return res_dict
 
     def get_memory_words(self):
@@ -119,6 +96,32 @@ class AssemblerMicroProgram:
             current_address += 1
         return res_dict
 
-# a = AssemblerMicroProgram(code)
-# b = a.get_memory_words()
-# print(b)
+if __name__ == "__main__":
+    code = '''ORG 0
+ADD: NOP I CALL INDRCT
+    READ U JMP NEXT
+    ADD U JMP FETCH
+ORG 4
+BRANCH: NOP S JMP OVER
+        NOP U JMP FETCH
+OVER:   NOP I CALL INDRCT
+        ARTPC U JMP FETCH
+ORG 8
+STORE: NOP I CALL INDRCT
+       ACTOR U JMP NEXT
+       WRITE U JMP FETCH
+ORG 12
+EXCHANGE:   NOP              I CALL INDRCT
+            READ             U JMP NEXT
+            ACTOR, DRTAC     U JMP NEXT
+            WRITE            U JMP FETCH
+ORG 64
+FETCH: PCTAR U JMP NEXT
+       READ, INCPC U JMP NEXT
+       DRTAR U JMP MAP
+INDRCT: READ U JMP NEXT
+        DRTAR U RET'''
+
+    a = MicroprogramAssembler(code)
+    b = a.get_memory_words()
+    print(b)
