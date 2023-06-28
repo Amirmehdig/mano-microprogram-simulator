@@ -199,16 +199,16 @@ class ProgramWidget(QWidget):
 
     def reset(self):
         self.refresh()
-
+        self.cpu.CAR.set_value(64)
         self.compile()
 
     def update_registers(self):
-        self.ui.ARLineEdit.setText(str(int(self.cpu.AR)))
-        self.ui.DRLineEdit.setText(str(int(self.cpu.DR)))
-        self.ui.PCLineEdit.setText(str(int(self.cpu.PC)))
-        self.ui.ACLineEdit.setText(str(int(self.cpu.AC)))
-        self.ui.CARLineEdit.setText(str(int(self.cpu.CAR)))
-        self.ui.SBRLineEdit.setText(str(int(self.cpu.SBR)))
+        self.ui.ARLineEdit.setText(hex(int(self.cpu.AR))[2:].zfill(4).upper())
+        self.ui.DRLineEdit.setText(hex(int(self.cpu.DR))[2:].zfill(4).upper())
+        self.ui.PCLineEdit.setText(hex(int(self.cpu.PC))[2:].zfill(3).upper())
+        self.ui.ACLineEdit.setText(hex(int(self.cpu.AC))[2:].zfill(4).upper())
+        self.ui.CARLineEdit.setText(hex(int(self.cpu.CAR))[2:].zfill(2).upper())
+        self.ui.SBRLineEdit.setText(hex(int(self.cpu.SBR))[2:].zfill(2).upper())
 
         micro_word = list(map(str, self.cpu.micro_program_ram[int(self.cpu.CAR)].bits))
         self.ui.F1LineEdit.setText("".join(micro_word[0:3]))
