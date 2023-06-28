@@ -148,8 +148,10 @@ class ProgramWidget(QWidget):
 
     def compile(self):
         code = self.ui.codeTextEdit.toPlainText()
-
+        if code.split() != []:
         # Compile code
+            self.cpu.program_assemble(code)
+            self.initialize_main_memory()
         assemble = self.cpu.program_assemble(code)
 
         if assemble is None:
@@ -157,6 +159,8 @@ class ProgramWidget(QWidget):
 
             self.cpu.PC.set_value(self.cpu.program_assembler.first_org)
 
+            # Successful message for compile
+            self.ui.consoleTextEdit.append("> Compile is successful!")
             # Successful message for compile
             self.ui.consoleTextEdit.append("> Compile is successful!")
         else:
@@ -185,18 +189,14 @@ class ProgramWidget(QWidget):
         )
 
     def next(self):
-        clock = self.cpu.clock_pulse()
-        self.update_registers()
+        self.cpu.clock_pulse()
 
-        if not clock:
-            self.buttons_status(True, False, False, True)
-            self.ui.consoleTextEdit.append("> Program executed!")
+        self.update_registers()
 
     def reset(self):
         self.refresh()
         self.update_registers()
         self.compile()
-        self.buttons_status(True, True, True, True)
 
     def update_registers(self):
         self.ui.ARLineEdit.setText(hex(int(self.cpu.AR))[2:].zfill(4).upper())

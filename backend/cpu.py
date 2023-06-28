@@ -37,6 +37,7 @@ class CPU:
         self.F3 = F3(self)
         self.CD = Condition(self)
         self.BR = Branch(self)
+        self.is_compiled = False
 
     def micro_assemble(self, micro_code: str):
         self.micro_assembler = MicroprogramAssembler(micro_code)
@@ -52,6 +53,7 @@ class CPU:
     def program_assemble(self, program_code: str):
         self.program_assembler = ProgramAssembler(program_code, self.micro_assembler.label_dict)
         self.program_assembler.assemble()
+        self.is_compiled = True
 
         if self.program_assembler.errors == {}:
             for key, value in self.program_assembler.res_dict.items():
