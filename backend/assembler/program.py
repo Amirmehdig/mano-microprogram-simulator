@@ -21,9 +21,7 @@ class ProgramAssembler:
 
     def assemble(self):
         self.label_dict = self.first_pass()
-        res = self.second_pass()
-
-        return self.label_dict, res
+        self.res_dict = self.second_pass()
 
     def first_pass(self):
         label_dict = {}
@@ -90,7 +88,7 @@ A3, HEX 0"""
     micro_table = {'ADD': 0, 'BRANCH': 4, 'OVER': 6, 'STORE': 8, 'EXCHANGE': 12, 'FETCH': 64, 'INDRCT': 67}
 
     a = ProgramAssembler(code, micro_table)
-    labels, res_dict = a.assemble()
-    print(labels)
-    for i in res_dict:
-        print(i, res_dict[i])
+    a.assemble()
+    print(a.label_dict)
+    for i in a.res_dict:
+        print(i, a.res_dict[i])
