@@ -190,12 +190,12 @@ class ProgramWidget(QWidget):
         self.compile()
 
     def update_registers(self):
-        self.ui.ARLineEdit.setText(hex(int(self.cpu.AR)).zfill(4).upper())
-        self.ui.DRLineEdit.setText(hex(int(self.cpu.DR)).zfill(4).upper())
-        self.ui.PCLineEdit.setText(hex(int(self.cpu.PC)).zfill(4).upper())
-        self.ui.ACLineEdit.setText(hex(int(self.cpu.AC)).zfill(4).upper())
-        self.ui.CARLineEdit.setText(hex(int(self.cpu.CAR)).zfill(4).upper())
-        self.ui.SBRLineEdit.setText(hex(int(self.cpu.SBR)).zfill(4).upper())
+        self.ui.ARLineEdit.setText(hex(int(self.cpu.AR))[2:].zfill(4).upper())
+        self.ui.DRLineEdit.setText(hex(int(self.cpu.DR))[2:].zfill(4).upper())
+        self.ui.PCLineEdit.setText(hex(int(self.cpu.PC))[2:].zfill(4).upper())
+        self.ui.ACLineEdit.setText(hex(int(self.cpu.AC))[2:].zfill(4).upper())
+        self.ui.CARLineEdit.setText(hex(int(self.cpu.CAR))[2:].zfill(4).upper())
+        self.ui.SBRLineEdit.setText(hex(int(self.cpu.SBR))[2:].zfill(4).upper())
 
         micro_word = list(map(str, self.cpu.micro_program_ram[int(self.cpu.CAR)].bits))
         self.ui.F1LineEdit.setText("".join(micro_word[0:3]))
