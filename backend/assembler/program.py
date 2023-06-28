@@ -1,15 +1,22 @@
 import re
 
 
-def to_bin(value: int):
+def find_by_value(dict, value):
+    for key, v in dict.items():
+        if v == value:
+            return key
+    return None
+
+
+def to_bin(value: int, size):
     if value < 0:
         return list(
-            map(int, list(bin(value & (2 ** 16 - 1))[2:]))
-        )[-16:]
+            map(int, list(bin(value & (2 ** size - 1))[2:]))
+        )[-size:]
     else:
         return list(
-            map(int, list(bin(value)[2:].zfill(16)))
-        )[-16:]
+            map(int, list(bin(value)[2:].zfill(size)))
+        )[-size:]
 
 
 class ProgramAssembler:
@@ -54,41 +61,74 @@ class ProgramAssembler:
             elif match[3] == "END":
                 break
             elif match[3] == "DEC":
-                res_dict[LC] = to_bin(int(match[5]))
+                res_dict[LC] = to_bin(int(match[5]), 16)
             elif match[3] == "HEX":
-                res_dict[LC] = to_bin(int(match[5], 16))
+                res_dict[LC] = to_bin(int(match[5], 16), 16)
             elif match[4] is not None:  # MRI
                 if match[5].isnumeric():
-                    address = to_bin(int(match[5], 16))
+                    address = to_bin(int(match[5], 16), 11)
                 else:
-                    address = to_bin(self.label_dict[match[5]])
+                    address = to_bin(self.label_dict[match[5]], 11)
                 opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
                 I = [1] if match[6] is not None else [0]
 
                 res_dict[LC] = address + opcode + I
             else:
                 opcode = list(map(int, list(bin(self.micro_table[match[3]])[2:-2].zfill(4))))
-                res_dict[LC] = [0] * 12 + opcode + [0]
+                res_dict[LC] = [0] * 11 + opcode + [0]
 
             LC += 1
 
         return res_dict
 
+    def disassemble(self, i, word, after_hlt=False):
+        word = list(map(str, word))
+
+        label = find_by_value(self.label_dict, i)
+
+        if not after_hlt:
+            address = find_by_value(self.label_dict, int("".join(word[0:11]), 2))
+            if address is None:
+                address = hex(int("".join(word[0:11]), 2))[2:].zfill(2)
+
+            opcode = find_by_value(self.micro_table, int("".join(word[11:15]) + "00", 2))
+
+            if opcode == "HLT":
+                instruction = f"{opcode}"
+            else:
+                instruction = f"{opcode} {address}"
+
+            if word[15] == "1":
+                instruction += " I"
+        else:
+            instruction = f"HEX {hex(int(''.join(word), 2))[2:].zfill(4)}"
+
+        return f"{label}," if label else None, instruction
+
 
 if __name__ == "__main__":
     code = """ORG 0
-ADD 111 I
+ADD 22 I
 ADD A2 
 ADD A3 I
-STORE 100
-STORE 111
+STORE 10
+STORE 18
+HLT
 ORG 10
 A2, DEC 15
-A3, HEX 0"""
-    micro_table = {'ADD': 0, 'BRANCH': 4, 'OVER': 6, 'STORE': 8, 'EXCHANGE': 12, 'FETCH': 64, 'INDRCT': 67}
+A3, HEX 0
+END"""
+    micro_table = {'ADD': 0, 'BRANCH': 4, 'OVER': 6, 'STORE': 8, 'EXCHANGE': 12, 'HLT': 16, 'FETCH': 64, 'INDRCT': 67}
 
     a = ProgramAssembler(code, micro_table)
     a.assemble()
     print(a.label_dict)
     for i in a.res_dict:
         print(i, a.res_dict[i])
+
+    after_hlt = False
+    for i in a.res_dict:
+        label, instruction = a.disassemble(i, a.res_dict[i], after_hlt)
+        print(label, instruction)
+        if instruction == "HLT":
+            after_hlt = True

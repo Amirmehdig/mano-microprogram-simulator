@@ -1,8 +1,5 @@
-from CPU import CPU
-
-
 class F3:
-    def __init__(self, cpu: CPU):
+    def __init__(self, cpu):
         self.cpu = cpu
         self.opcode = {'000': self.nop_func,
                        '001': self.xor_func,
@@ -38,5 +35,3 @@ class F3:
     def artpc_func(self):
         self.cpu.PC.write(self.cpu.AR)
         self.cpu.program_counter = int(self.cpu.AR)
-
-

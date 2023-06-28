@@ -1,12 +1,16 @@
 from PyQt6.QtWidgets import QWidget, QTableWidgetItem
+
+from backend.cpu import CPU
 from ui.micro_tab import Ui_MicroTab
 
 
 class MicroprogramWidget(QWidget):
-    def __init__(self):
+    def __init__(self, cpu: CPU):
         super().__init__()
         self.ui = Ui_MicroTab()
         self.ui.setupUi(self)
+
+        self.cpu = cpu
 
         self.ui.writePushButton.clicked.connect(self.write)
 

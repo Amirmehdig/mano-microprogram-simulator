@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QMainWindow
 
 from app.program import ProgramWidget
 from app.microprogram import MicroprogramWidget
+from backend.cpu import CPU
 from ui.main import Ui_MainWindow
 
 
@@ -11,10 +12,12 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.program_tab = ProgramWidget()
+        self.cpu = CPU()
+
+        self.program_tab = ProgramWidget(self.cpu)
         self.ui.tabWidget.addTab(self.program_tab, "Program")
 
-        self.micro_tab = MicroprogramWidget()
+        self.micro_tab = MicroprogramWidget(self.cpu)
         self.ui.tabWidget.addTab(self.micro_tab, "Microprogram")
 
         self.show()

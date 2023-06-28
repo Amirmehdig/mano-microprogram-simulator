@@ -1,3 +1,10 @@
+def find_by_value(dict, value):
+    for key, v in dict.items():
+        if v == value:
+            return key
+    return None
+
+
 class MicroprogramAssembler:
     f1 = {
         'NOP': '000',
@@ -98,32 +105,62 @@ class MicroprogramAssembler:
 
         return res_dict
 
+    def disassemble(self, i, word: list):
+        word = list(map(str, word))
+
+        label = find_by_value(self.label_dict, i)
+        f1 = find_by_value(self.f1, "".join(word[0:3]))
+        f2 = find_by_value(self.f2, "".join(word[3:6]))
+        f3 = find_by_value(self.f3, "".join(word[6:9]))
+        cd = find_by_value(self.conditions, "".join(word[9:11]))
+        br = find_by_value(self.branch, "".join(word[11:13]))
+        ad = find_by_value(self.label_dict, int("".join(word[13:]), 2))
+
+        instruction = ""
+
+        if f1:
+            instruction += f1
+        if f2:
+            instruction += f", {f2}"
+        if f3:
+            instruction += f", {f3}"
+        if cd:
+            instruction += f" {cd}"
+        if br:
+            instruction += f" {br}"
+        if ad:
+            instruction += f" {ad}"
+
+        return f"{label}:" if label else None, instruction
+
 
 if __name__ == "__main__":
     code = '''ORG 0
 ADD: NOP I CALL INDRCT
-    READ U JMP NEXT
-    ADD U JMP FETCH
+READ U JMP NEXT
+ADD U JMP FETCH
 ORG 4
 BRANCH: NOP S JMP OVER
-        NOP U JMP FETCH
-OVER:   NOP I CALL INDRCT
-        ARTPC U JMP FETCH
+NOP U JMP FETCH
+OVER: NOP I CALL INDRCT
+ARTPC U JMP FETCH
 ORG 8
 STORE: NOP I CALL INDRCT
-       ACTOR U JMP NEXT
-       WRITE U JMP FETCH
+ACTOR U JMP NEXT
+WRITE U JMP FETCH
 ORG 12
-EXCHANGE:   NOP              I CALL INDRCT
-            READ             U JMP NEXT
-            ACTOR, DRTAC     U JMP NEXT
-            WRITE            U JMP FETCH
+EXCHANGE: NOP I CALL INDRCT
+READ U JMP NEXT
+ACTOR, DRTAC U JMP NEXT
+WRITE U JMP FETCH
+ORG 16
+HLT: NOP U JMP FETCH
 ORG 64
 FETCH: PCTAR U JMP NEXT
-       READ, INCPC U JMP NEXT
-       DRTAR U JMP MAP
+READ, INCPC U JMP NEXT
+DRTAR U JMP MAP
 INDRCT: READ U JMP NEXT
-        DRTAR U RET'''
+DRTAR U RET'''
 
     a = MicroprogramAssembler(code)
     a.assemble()
@@ -131,3 +168,6 @@ INDRCT: READ U JMP NEXT
     print(a.label_dict)
     for i in a.res_dict:
         print(i, a.res_dict[i])
+
+    label, instruction = a.disassemble(5, a.res_dict[5])
+    print(label, instruction)

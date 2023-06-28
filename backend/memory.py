@@ -1,4 +1,5 @@
-from register import Register
+from backend.register import Register
+
 
 class Memory:
     def __init__(self, word_size: int, capacity: int):

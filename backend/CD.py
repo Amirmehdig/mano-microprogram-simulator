@@ -1,8 +1,5 @@
-from CPU import CPU
-
-
 class Condition:
-    def __init__(self, cpu: CPU):
+    def __init__(self, cpu):
         self.cpu = cpu
         self.cd = {
             '00': self.u_func,
@@ -10,7 +7,6 @@ class Condition:
             '10': self.s_func,
             '11': self.z_func
         }
-
 
     def instruction(self, code):
         return self.cd[code]
@@ -23,7 +19,6 @@ class Condition:
             return True
         else:
             return False
-
 
     def s_func(self):
         if self.cpu.AC.bits[0] == 0:

@@ -1,8 +1,8 @@
-from CPU import CPU
-from register import Register
+from backend.register import Register
+
 
 class Branch:
-    def __init__(self, cpu: CPU):
+    def __init__(self, cpu):
         self.cpu = cpu
         self.br = {
             '00': self.jmp_func,
@@ -11,7 +11,7 @@ class Branch:
             '11': self.map_func
         }
 
-    def instruction(self, br_code, flag = True):
+    def instruction(self, br_code, flag=True):
         self.br[br_code](flag)
 
     def jmp_func(self, flag):
@@ -37,4 +37,3 @@ class Branch:
         tmp = [0, 0, 0, 0, 0, 0]
         tmp[1: 4] = self.cpu.DR.bits[1: 4]
         self.cpu.CAR.word_to_register(tmp)
-

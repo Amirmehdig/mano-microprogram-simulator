@@ -2,11 +2,13 @@ class Register:
     def __init__(self, size: int = 16) -> None:
         self.size = size
         self.bits = [0] * size
+        self.is_valid = False
 
     def __getitem__(self, item):
         return self.bits[item]
 
     def __setitem__(self, key, value):
+        self.is_valid = True
         self.bits[key] = value
 
     def __int__(self):
@@ -24,6 +26,7 @@ class Register:
             if a + b + c > 1:
                 carry_out = 1
             return sum_res, carry_out
+
         carry = 0
         result = Register(self.size)
         for i in range(self.size - 1, -1, -1):
@@ -74,9 +77,10 @@ class Register:
 
     def set_value(self, value):
         if -32768 <= value <= 32767:
+            self.is_valid = True
             if value < 0:
                 self.bits = list(
-                    map(int, list(bin(value&(2**self.size - 1))[2:])))[-self.size:]
+                    map(int, list(bin(value & (2 ** self.size - 1))[2:])))[-self.size:]
             else:
                 self.bits = list(
                     map(int, list(bin(value)[2:].zfill(self.size))))[-self.size:]
@@ -88,19 +92,23 @@ class Register:
         return hex(result)
 
     def word_to_register(self, word: list):
+        self.is_valid = True
         word = [int(word[i]) for i in range(len(word))]
         for i in range(self.size):
             self.bits[i] = word[i]
 
     # write other to self
     def write(self, other):
+        self.is_valid = True
         for i in range(self.size):
             self.bits[i] = other.bits[i]
 
     def write_to_smaller_reg(self, bigger):
+        self.is_valid = True
         for i in range(bigger.size - 1, 3, -1):
             self.bits[i - 4] = bigger[i]
 
     def write_to_bigger_reg(self, smaller):
+        self.is_valid = True
         for i in range(self.size - 1, 3, -1):
             self.bits[i] = smaller[i - 4]

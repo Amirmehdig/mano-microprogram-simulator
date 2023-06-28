@@ -1,9 +1,6 @@
-from CPU import CPU
-
-
 class F1:
 
-    def __init__(self, cpu: CPU):
+    def __init__(self, cpu):
         self.cpu = cpu
         self.opcode = {'000': self.nop_func,
                        '001': self.add_func,

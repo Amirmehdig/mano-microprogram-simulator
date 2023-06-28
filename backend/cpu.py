@@ -1,12 +1,12 @@
 from backend.assembler.program import ProgramAssembler
-from memory import Memory
-from register import Register
+from backend.memory import Memory
+from backend.register import Register
 from backend.assembler.micro import MicroprogramAssembler
-from F1 import F1
-from F2 import F2
-from F3 import F3
-from CD import Condition
-from BR import Branch
+from backend.F1 import F1
+from backend.F2 import F2
+from backend.F3 import F3
+from backend.CD import Condition
+from backend.BR import Branch
 
 
 class CPU:
@@ -22,6 +22,7 @@ class CPU:
         self.DR = Register(16)
 
         self.micro_program_ram = Memory(20, 128)
+        self.micro_assemble(open("backend/assembly/default_micro.asm", "r").read())
 
         self.CAR = Register(7)
         self.CAR.set_value(64)
@@ -35,16 +36,15 @@ class CPU:
         self.CD = Condition(self)
         self.BR = Branch(self)
 
-    def assemble(self, code: str):
-        # Microprogram assemble
-        self.micro_assembler = MicroprogramAssembler(code)
+    def micro_assemble(self, micro_code: str):
+        self.micro_assembler = MicroprogramAssembler(micro_code)
         self.micro_assembler.assemble()
 
         for key, value in self.micro_assembler.res_dict.items():
             self.micro_program_ram[key].word_to_register(value)
 
-        # Program assemble
-        self.program_assembler = ProgramAssembler(code, self.micro_assembler.label_dict)
+    def program_assemble(self, program_code: str):
+        self.program_assembler = ProgramAssembler(program_code, self.micro_assembler.label_dict)
         self.program_assembler.assemble()
 
         for key, value in self.program_assembler.res_dict.items():

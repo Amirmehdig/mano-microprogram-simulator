@@ -1,8 +1,8 @@
-from CPU import CPU
-from register import Register
+from backend.register import Register
+
 
 class F2:
-    def __init__(self, cpu: CPU):
+    def __init__(self, cpu):
         self.cpu = cpu
         self.opcode = {'000': self.nop_func,
                        '001': self.sub_func,
@@ -44,4 +44,3 @@ class F2:
 
     def pctdr_func(self):
         self.cpu.DR.write_to_bigger_reg(self.cpu.PC)
-
