@@ -33,8 +33,10 @@ class F3:
 
     def incpc_func(self):
         self.cpu.PC.increment()
+        self.cpu.program_counter += 1
 
     def artpc_func(self):
         self.cpu.PC.write(self.cpu.AR)
+        self.cpu.program_counter = int(self.cpu.AR)
 
 

@@ -92,8 +92,8 @@ class Register:
         for i in range(self.size):
             self.bits[i] = word[i]
 
+    # write other to self
     def write(self, other):
-        # write other to self
         for i in range(self.size):
             self.bits[i] = other.bits[i]
 
