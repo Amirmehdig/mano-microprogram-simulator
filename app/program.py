@@ -12,14 +12,14 @@ class Worker(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal()
 
-    def __init__(self, cpu):
+    def __init__(self, cpu, slider):
         super().__init__()
-
         self.cpu = cpu
+        self.slider = slider
 
     def run(self):
         while self.cpu.clock_pulse():
-            sleep(1)
+            sleep(1 - (self.slider.value() / 10))
             self.progress.emit()
         self.finished.emit()
 
@@ -160,7 +160,7 @@ class ProgramWidget(QWidget):
 
     def run(self):
         self.thread = QThread()
-        self.worker = Worker(self.cpu)
+        self.worker = Worker(self.cpu, self.ui.speedHorizontalSlider)
 
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
@@ -171,12 +171,12 @@ class ProgramWidget(QWidget):
 
         self.thread.start()
 
-        self.ui.runPushButton.setEnabled(False)
+        self.buttons_status(False, False, False, False)
         self.thread.finished.connect(
-            lambda: self.ui.runPushButton.setEnabled(True)
+            lambda: self.buttons_status(True, True, True, True)
         )
         self.thread.finished.connect(
-            lambda: print("finish!")
+            lambda: self.ui.consoleTextEdit.append("> Program executed!")
         )
 
     def next(self):
@@ -206,7 +206,7 @@ class ProgramWidget(QWidget):
         self.ui.ADLineEdit.setText("".join(micro_word[13:]))
 
         program_word = list(map(str, self.cpu.program_ram[int(self.cpu.PC)].bits))
-        self.ui.ADDRLineEdit.setText("".join(program_word[5:]))
+        self.ui.ADDRLineEdit.setText(hex(int("".join(program_word[5:]), 2))[2:].zfill(3))
         self.ui.OPCodeLineEdit.setText("".join(program_word[1:5]))
         self.ui.ILineEdit.setText("".join(program_word[0]))
 
@@ -218,3 +218,9 @@ class ProgramWidget(QWidget):
     def update_table_highlight(self):
         self.ui.mainMemoryTableWidget.selectRow(self.cpu.last_PC)
         self.ui.microMemoryTableWidget.selectRow(self.cpu.last_CAR)
+
+    def buttons_status(self, compile_status, run_status, next_status, reset_status):
+        self.ui.compilePushButton.setEnabled(compile_status)
+        self.ui.runPushButton.setEnabled(run_status)
+        self.ui.nextPushButton.setEnabled(next_status)
+        self.ui.resetPushButton.setEnabled(reset_status)
