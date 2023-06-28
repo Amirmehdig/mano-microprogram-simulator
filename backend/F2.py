@@ -24,7 +24,8 @@ class F2:
         temp = Register(16)
         temp.set_value(1)
         res = Register()
-        result, carry = self.cpu.AC.add(self.cpu.DR.complement())
+        self.cpu.DR.complement()
+        result, carry = self.cpu.AC.add(self.cpu.DR)
         res.write(result.add(temp, carry)[0])
         self.cpu.AC.write(res)
 
