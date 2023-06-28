@@ -1,3 +1,4 @@
+from backend.assembler.program import ProgramAssembler
 from memory import Memory
 from register import Register
 from backend.assembler.micro import MicroprogramAssembler
@@ -6,6 +7,7 @@ from F2 import F2
 from F3 import F3
 from CD import Condition
 from BR import Branch
+
 
 class CPU:
     def __init__(self):
@@ -33,20 +35,28 @@ class CPU:
         self.CD = Condition(self)
         self.BR = Branch(self)
 
-
     def assemble(self, code: str):
-        micro_assembler = MicroprogramAssembler(code)
-        self.micro_program_label_table = micro_assembler.get_label_table()
-        micro_controller = micro_assembler.get_memory_words()
-        for key in micro_controller:
-            self.micro_program_ram[key].word_to_register(micro_controller[key])
+        # Microprogram assemble
+        self.micro_assembler = MicroprogramAssembler(code)
+        self.micro_assembler.assemble()
 
+        for key, value in self.micro_assembler.res_dict.items():
+            self.micro_program_ram[key].word_to_register(value)
+
+        # Program assemble
+        self.program_assembler = ProgramAssembler(code, self.micro_assembler.label_dict)
+        self.program_assembler.assemble()
+
+        for key, value in self.program_assembler.res_dict.items():
+            self.program_ram[key].word_to_register(value)
 
     def clock_pulse(self):
         word = list(map(str, self.micro_program_ram[int(self.CAR)].bits))
+
         self.F1.instruction(word[0:3])
         self.F2.instruction(word[3:6])
         self.F3.instruction(word[6:9])
+
         if self.CD.instruction(word[9: 11]):
             self.BR.instruction(word[11: 13], True)
         else:
