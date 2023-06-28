@@ -4,7 +4,8 @@ from backend.assembler.micro import MicroprogramAssembler
 from F1 import F1
 from F2 import F2
 from F3 import F3
-
+from CD import Condition
+from BR import Branch
 
 class CPU:
     def __init__(self):
@@ -29,6 +30,8 @@ class CPU:
         self.F1 = F1(self)
         self.F2 = F2(self)
         self.F3 = F3(self)
+        self.CD = Condition(self)
+        self.BR = Branch(self)
 
 
     def assemble(self, code: str):
@@ -44,5 +47,7 @@ class CPU:
         self.F1.instruction(word[0:3])
         self.F2.instruction(word[3:6])
         self.F3.instruction(word[6:9])
-
-
+        if self.CD.instruction(word[9: 11]):
+            self.BR.instruction(word[11: 13], True)
+        else:
+            self.BR.instruction(word[11: 13], False)
