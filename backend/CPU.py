@@ -1,6 +1,6 @@
 from memory import Memory
 from register import Register
-from assemblermircroprogram import AssemblerMicroProgram
+from backend.assembler.micro import MicroprogramAssembler
 from F1 import F1
 from F2 import F2
 from F3 import F3
@@ -32,7 +32,7 @@ class CPU:
 
 
     def assemble(self, code: str):
-        micro_assembler = AssemblerMicroProgram(code)
+        micro_assembler = MicroprogramAssembler(code)
         self.micro_program_label_table = micro_assembler.get_label_table()
         micro_controller = micro_assembler.get_memory_words()
         for key in micro_controller:
