@@ -1,4 +1,3 @@
-import traceback
 from time import sleep
 
 from PyQt6.QtCore import Qt, QObject, pyqtSignal, QThread
@@ -34,6 +33,8 @@ class ProgramWidget(QWidget):
         self.cpu = cpu
 
         self.refresh()
+        self.initialize_main_memory()
+        self.initialize_micro_memory()
 
         self.table_detail()
 
@@ -56,26 +57,12 @@ class ProgramWidget(QWidget):
         self.ui.mainMemoryTableWidget.setColumnWidth(3, 80)
 
     def refresh(self):
-        # Refresh memories
-        self.initialize_main_memory()
-        self.initialize_micro_memory()
-
-        # Refresh registers
-        self.ui.ARLineEdit.setText("0000")
-        self.ui.DRLineEdit.setText("0000")
-        self.ui.PCLineEdit.setText("0000")
-        self.ui.ACLineEdit.setText("0000")
-        self.ui.CARLineEdit.setText("0000")
-        self.ui.SBRLineEdit.setText("0000")
-        self.ui.F1LineEdit.setText("0000")
-        self.ui.F2LineEdit.setText("0000")
-        self.ui.F3LineEdit.setText("0000")
-        self.ui.CDLineEdit.setText("0000")
-        self.ui.BRLineEdit.setText("0000")
-        self.ui.ADLineEdit.setText("0000")
-        self.ui.ILineEdit.setText("0000")
-        self.ui.OPCodeLineEdit.setText("0000")
-        self.ui.ADDRLineEdit.setText("0000")
+        self.cpu.AR.set_value(0)
+        self.cpu.DR.set_value(0)
+        self.cpu.PC.set_value(0)
+        self.cpu.AC.set_value(0)
+        self.cpu.CAR.set_value(64)
+        self.cpu.SBR.set_value(0)
 
     def initialize_micro_memory(self):
         self.clear_table(self.ui.microMemoryTableWidget)
@@ -199,16 +186,16 @@ class ProgramWidget(QWidget):
 
     def reset(self):
         self.refresh()
-        self.cpu.CAR.set_value(64)
+        self.update_registers()
         self.compile()
 
     def update_registers(self):
-        self.ui.ARLineEdit.setText(hex(int(self.cpu.AR))[2:].zfill(4).upper())
-        self.ui.DRLineEdit.setText(hex(int(self.cpu.DR))[2:].zfill(4).upper())
-        self.ui.PCLineEdit.setText(hex(int(self.cpu.PC))[2:].zfill(3).upper())
-        self.ui.ACLineEdit.setText(hex(int(self.cpu.AC))[2:].zfill(4).upper())
-        self.ui.CARLineEdit.setText(hex(int(self.cpu.CAR))[2:].zfill(2).upper())
-        self.ui.SBRLineEdit.setText(hex(int(self.cpu.SBR))[2:].zfill(2).upper())
+        self.ui.ARLineEdit.setText(str(int(self.cpu.AR)))
+        self.ui.DRLineEdit.setText(str(int(self.cpu.DR)))
+        self.ui.PCLineEdit.setText(str(int(self.cpu.PC)))
+        self.ui.ACLineEdit.setText(str(int(self.cpu.AC)))
+        self.ui.CARLineEdit.setText(str(int(self.cpu.CAR)))
+        self.ui.SBRLineEdit.setText(str(int(self.cpu.SBR)))
 
         micro_word = list(map(str, self.cpu.micro_program_ram[int(self.cpu.CAR)].bits))
         self.ui.F1LineEdit.setText("".join(micro_word[0:3]))
