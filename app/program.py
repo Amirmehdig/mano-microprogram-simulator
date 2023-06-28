@@ -180,14 +180,18 @@ class ProgramWidget(QWidget):
         )
 
     def next(self):
-        self.cpu.clock_pulse()
-
+        clock = self.cpu.clock_pulse()
         self.update_registers()
+
+        if not clock:
+            self.buttons_status(True, False, False, True)
+            self.ui.consoleTextEdit.append("> Program executed!")
 
     def reset(self):
         self.refresh()
         self.update_registers()
         self.compile()
+        self.buttons_status(True, True, True, True)
 
     def update_registers(self):
         self.ui.ARLineEdit.setText(hex(int(self.cpu.AR))[2:].zfill(4).upper())
