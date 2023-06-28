@@ -29,9 +29,9 @@ class F3:
         self.cpu.AC.right_shift(self.cpu.AC.bits[0])
 
     def incpc_func(self):
+        self.cpu.last_PC = int(self.cpu.PC)
         self.cpu.PC.increment()
-        self.cpu.program_counter += 1
 
     def artpc_func(self):
+        self.cpu.last_PC = int(self.cpu.PC)
         self.cpu.PC.write(self.cpu.AR)
-        self.cpu.program_counter = int(self.cpu.AR)

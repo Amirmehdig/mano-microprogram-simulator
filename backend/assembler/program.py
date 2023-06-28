@@ -25,6 +25,7 @@ class ProgramAssembler:
     def __init__(self, code: str, micro_table):
         self.code_lines = [line.upper() for line in code.split("\n")]
         self.micro_table = micro_table
+        self.first_org = None
 
     def assemble(self):
         self.label_dict = self.first_pass()
@@ -41,6 +42,9 @@ class ProgramAssembler:
             if match[0] is not None:
                 label_dict[match[1]] = LC
             elif match[3] == "ORG":
+                if self.first_org is None:
+                    self.first_org = LC
+
                 LC = int(match[5], 16) - 1
             elif match[2] == "END":
                 break

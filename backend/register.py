@@ -11,13 +11,20 @@ class Register:
         self.is_valid = True
         self.bits[key] = value
 
+    # def __int__(self):
+    #     result = 0
+    #     for bit in self.bits[1:]:
+    #         result = (result << 1) | bit
+    #     if self.bits[0]:
+    #         result -= 2 ** (self.size - 1)
+    #     return result
+
     def __int__(self):
         result = 0
-        for bit in self.bits[1:]:
+        for bit in self.bits:
             result = (result << 1) | bit
-        if self.bits[0]:
-            result -= 2 ** (self.size - 1)
         return result
+
 
     def __add__(self, other):
         def full_adder(a, b, c):

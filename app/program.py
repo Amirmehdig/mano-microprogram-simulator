@@ -11,7 +11,7 @@ from ui.program_tab import Ui_ProgramTab
 
 class Worker(QObject):
     finished = pyqtSignal()
-    progress = pyqtSignal(int)
+    progress = pyqtSignal()
 
     def __init__(self, cpu):
         super().__init__()
@@ -19,14 +19,9 @@ class Worker(QObject):
         self.cpu = cpu
 
     def run(self):
-        i = 0
-        while True:
-            if not self.cpu.clock_pulse():
-                break
-
+        while self.cpu.clock_pulse():
             sleep(1)
-            self.progress.emit(i + 1)
-            i += 1
+            self.progress.emit()
         self.finished.emit()
 
 
@@ -62,7 +57,7 @@ class ProgramWidget(QWidget):
 
     def refresh(self):
         # Refresh memories
-        # self.initialize_main_memory()
+        self.initialize_main_memory()
         self.initialize_micro_memory()
 
         # Refresh registers
@@ -99,7 +94,7 @@ class ProgramWidget(QWidget):
             self.ui.microMemoryTableWidget.setItem(i, 0, label_item)
 
             # Address
-            address_item = QTableWidgetItem(hex(i)[2:].zfill(2))
+            address_item = QTableWidgetItem(hex(i)[2:].zfill(2).upper())
             address_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.ui.microMemoryTableWidget.setItem(i, 1, address_item)
 
@@ -109,7 +104,7 @@ class ProgramWidget(QWidget):
 
             # Hex
             hex_item = QTableWidgetItem(
-                hex(int("".join(str(x) for x in self.cpu.micro_program_ram[i]), 2))[2:].zfill(5)
+                hex(int("".join(str(x) for x in self.cpu.micro_program_ram[i]), 2))[2:].zfill(5).upper()
             )
             hex_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.ui.microMemoryTableWidget.setItem(i, 3, hex_item)
@@ -140,7 +135,7 @@ class ProgramWidget(QWidget):
             self.ui.mainMemoryTableWidget.setItem(i, 0, label_item)
 
             # Address
-            address_item = QTableWidgetItem(hex(i)[2:].zfill(4))
+            address_item = QTableWidgetItem(hex(i)[2:].zfill(4).upper())
             address_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.ui.mainMemoryTableWidget.setItem(i, 1, address_item)
 
@@ -150,7 +145,7 @@ class ProgramWidget(QWidget):
 
             # Hex
             hex_item = QTableWidgetItem(
-                hex(int("".join(str(x) for x in self.cpu.program_ram[i]), 2))[2:].zfill(4)
+                hex(int("".join(str(x) for x in self.cpu.program_ram[i]), 2))[2:].zfill(4).upper()
             )
             hex_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.ui.mainMemoryTableWidget.setItem(i, 3, hex_item)
@@ -171,6 +166,8 @@ class ProgramWidget(QWidget):
         self.cpu.program_assemble(code)
         self.initialize_main_memory()
 
+        self.cpu.PC.set_value(self.cpu.program_assembler.first_org)
+
         # Successful message for compile
         self.ui.consoleTextEdit.append("> Compile is successful!")
 
@@ -185,8 +182,6 @@ class ProgramWidget(QWidget):
         self.thread.finished.connect(self.thread.deleteLater)
         self.worker.progress.connect(self.update_registers)
 
-        self.cpu.PC.set_value(0)
-
         self.thread.start()
 
         self.ui.runPushButton.setEnabled(False)
@@ -198,19 +193,16 @@ class ProgramWidget(QWidget):
         )
 
     def next(self):
-        pass
+        self.cpu.clock_pulse()
+
+        self.update_registers()
 
     def reset(self):
-        pass
+        self.refresh()
 
-    def update_registers(self, n):
-        pass
-        # try:
-        #     print(int(self.cpu.AR))
-        # except Exception as e:
-        #     print("e2:", e)
+        self.compile()
 
-        # print(str(int(self.cpu.AR)))
+    def update_registers(self):
         self.ui.ARLineEdit.setText(str(int(self.cpu.AR)))
         self.ui.DRLineEdit.setText(str(int(self.cpu.DR)))
         self.ui.PCLineEdit.setText(str(int(self.cpu.PC)))
@@ -226,9 +218,16 @@ class ProgramWidget(QWidget):
         self.ui.BRLineEdit.setText("".join(micro_word[11:13]))
         self.ui.ADLineEdit.setText("".join(micro_word[13:]))
 
-        # self.ui.ADDRLineEdit.setText(str(int(self.cpu.)))
-        # self.ui.OPCodeLineEdit.setText(str(int(self.cpu.)))
-        # self.ui.ILineEdit.setText(str(int(self.cpu.)))
+        program_word = list(map(str, self.cpu.program_ram[int(self.cpu.PC)].bits))
+        self.ui.ADDRLineEdit.setText("".join(program_word[5:]))
+        self.ui.OPCodeLineEdit.setText("".join(program_word[1:5]))
+        self.ui.ILineEdit.setText("".join(program_word[0]))
 
         self.initialize_main_memory()
         self.initialize_micro_memory()
+
+        self.update_table_highlight()
+
+    def update_table_highlight(self):
+        self.ui.mainMemoryTableWidget.selectRow(self.cpu.last_PC)
+        self.ui.microMemoryTableWidget.selectRow(self.cpu.last_CAR)

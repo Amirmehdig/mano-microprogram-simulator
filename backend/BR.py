@@ -15,12 +15,14 @@ class Branch:
         self.br[br_code](flag)
 
     def jmp_func(self, flag):
+        self.cpu.last_CAR = int(self.cpu.CAR)
         if flag:
             self.cpu.CAR.word_to_register(self.cpu.micro_program_ram[int(self.cpu.CAR)][13:20])
         else:
             self.cpu.CAR.increment()
 
     def call_func(self, flag):
+        self.cpu.last_CAR = int(self.cpu.CAR)
         if flag:
             tmp = Register(7)
             tmp.write(self.cpu.CAR)
@@ -31,9 +33,11 @@ class Branch:
             self.cpu.CAR.increment()
 
     def ret_func(self, flag):
+        self.cpu.last_CAR = int(self.cpu.CAR)
         self.cpu.CAR.write(self.cpu.SBR)
 
     def map_func(self, flag):
+        self.cpu.last_CAR = int(self.cpu.CAR)
         tmp = [0, 0, 0, 0, 0, 0, 0]
         tmp[1:5] = self.cpu.DR.bits[1:5]
         self.cpu.CAR.word_to_register(tmp)

@@ -9,13 +9,13 @@ class Condition:
         }
 
     def instruction(self, code):
-        return self.cd[code]
+        return self.cd[code]()
 
     def u_func(self):
         return True
 
     def i_func(self):
-        if self.cpu.DR.bits[0]:
+        if self.cpu.DR.bits[0] == 1:
             return True
         else:
             return False

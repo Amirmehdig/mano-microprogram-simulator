@@ -18,6 +18,7 @@ class CPU:
 
         self.AR = Register(11)
         self.PC = Register(11)
+        self.last_PC = 0
         self.AC = Register(16)
         self.DR = Register(16)
 
@@ -25,6 +26,7 @@ class CPU:
         self.micro_assemble(open("backend/assembly/default_micro.asm", "r").read())
 
         self.CAR = Register(7)
+        self.last_CAR = 64
         self.CAR.set_value(64)
         self.SBR = Register(7)
 

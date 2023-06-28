@@ -345,7 +345,7 @@ class Ui_ProgramTab(object):
         self.mainMemoryTableWidget.setSizePolicy(sizePolicy)
         self.mainMemoryTableWidget.setMinimumSize(QtCore.QSize(402, 0))
         palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(213, 213, 213))
+        brush = QtGui.QBrush(QtGui.QColor(88, 88, 88))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
         palette.setBrush(QtGui.QPalette.ColorGroup.Active, QtGui.QPalette.ColorRole.Highlight, brush)
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
