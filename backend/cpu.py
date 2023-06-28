@@ -42,6 +42,10 @@ class CPU:
         self.micro_assembler = MicroprogramAssembler(micro_code)
         self.micro_assembler.assemble()
 
+        for r in self.micro_program_ram:
+            r.master_reset()
+            r.is_valid = False
+
         for key, value in self.micro_assembler.res_dict.items():
             self.micro_program_ram[key].word_to_register(value)
 
