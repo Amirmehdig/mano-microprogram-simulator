@@ -35,13 +35,19 @@ class Register:
         self.set_value(value)
         return self
 
-    def __ilshift__(self, other):
-        self.set_value(int(other))
-        return self
-
     def __iand__(self, other):
         for i in range(self.size):
-            self.data[i] = self.data[i] & other.data[i]
+            self.bits[i] = self.bits[i] & other.bits[i]
+        return self
+
+    def __ior__(self, other):
+        for i in range(self.size):
+            self.bits[i] = self.bits[i] | other.bits[i]
+        return self
+
+    def __ixor__(self, other):
+        for i in range(self.size):
+            self.bits[i] = self.bits[i] ^ other.bits[i]
         return self
 
     def increment(self):
@@ -80,3 +86,21 @@ class Register:
         for bit in self.bits:
             result = (result << 1) | bit
         return hex(result)
+
+    def word_to_register(self, word: list):
+        word = [int(word[i]) for i in range(len(word))]
+        for i in range(self.size):
+            self.bits[i] = word[i]
+
+    def write(self, other):
+        # write other to self
+        for i in range(self.size):
+            self.bits[i] = other.bits[i]
+
+    def write_to_smaller_reg(self, bigger):
+        for i in range(bigger.size - 1, 3, -1):
+            self.bits[i - 4] = bigger[i]
+
+    def write_to_bigger_reg(self, smaller):
+        for i in range(self.size - 1, 3, -1):
+            self.bits[i] = smaller[i - 4]
