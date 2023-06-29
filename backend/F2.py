@@ -26,7 +26,7 @@ class F2:
         res = Register()
         self.cpu.DR.complement()
         result, carry = self.cpu.AC.add(self.cpu.DR)
-        res.write(result.add(temp, carry)[0])
+        res.write(result.add(temp)[0])
         self.cpu.AC.write(res)
 
     def or_func(self):
