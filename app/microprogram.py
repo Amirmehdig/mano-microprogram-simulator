@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget, QTableWidgetItem
 
+from backend.assembly.default_micro import default_code
 from backend.cpu import CPU
 from ui.micro_tab import Ui_MicroTab
 
@@ -18,7 +19,7 @@ class MicroprogramWidget(QWidget):
 
         self.table_detail()
         self.initialize_micro_memory()
-        self.ui.codeTextEdit.setText(open("backend/assembly/default_micro.asm", "r").read())
+        self.ui.codeTextEdit.setText(default_code)
 
         self.ui.writePushButton.clicked.connect(self.write)
 

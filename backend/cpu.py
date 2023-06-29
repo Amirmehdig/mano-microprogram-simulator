@@ -1,4 +1,5 @@
 from backend.assembler.program import ProgramAssembler
+from backend.assembly.default_micro import default_code
 from backend.memory import Memory
 from backend.register import Register
 from backend.assembler.micro import MicroprogramAssembler
@@ -23,7 +24,7 @@ class CPU:
         self.DR = Register(16)
 
         self.micro_program_ram = Memory(20, 128)
-        self.micro_assemble(open("backend/assembly/default_micro.asm", "r").read())
+        self.micro_assemble(default_code)
 
         self.CAR = Register(7)
         self.last_CAR = 64
