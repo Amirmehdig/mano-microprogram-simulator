@@ -50,8 +50,13 @@ class MicroprogramAssembler:
         self.lines = code.split('\n')
         for i in range(len(self.lines)):
             self.lines[i] = self.lines[i].split()
+        self.label_dict = {}
+        self.res_dict = {}
+
 
     def assemble(self):
+        self.res_dict.clear()
+        self.label_dict.clear()
         self.label_dict = self.get_label_table()
         self.res_dict = self.get_memory_words()
 
@@ -62,7 +67,7 @@ class MicroprogramAssembler:
         for i in range(len(self.lines)):
             if self.lines[i][0] == 'ORG':
                 current_address = int(self.lines[i][1]) - 1
-            if self.lines[i][0][-1] == ':':
+            if self.lines[i][0][-1] == ':' or self.lines[i][1] == ':' or self.lines[i][1][0] == ':':
                 res_dict.__setitem__(self.lines[i][0].replace(':', ''), current_address)
             current_address += 1
 
