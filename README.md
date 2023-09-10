@@ -1,4 +1,4 @@
-# ManoMicroProgramSimulator
+# Mano Microprogram Simulator
 > An assembler and hardware simulator for the Mano Basic Computer which uses Microprogram architecture.
  
 This is a Python application that writes microprogram codes into microprogram memory and then compiles assembly code for
